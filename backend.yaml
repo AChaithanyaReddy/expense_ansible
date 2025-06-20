@@ -46,13 +46,14 @@
 
   - name: copy backend service
     ansible.builtin.copy:
-    src:  backend.service
-    dest: /etc/systemd/system/backend.service
+      src:  backend.service
+      dest: /etc/systemd/system/backend.service
 
   - name: install PyMySQL
     ansible.builtin.pip:
       name:
       - PyMySQL
+      - cryptography
       executable: pip3
 
   - name: import mysql data
@@ -62,4 +63,10 @@
       login_host: "{{login_host}}"
       target: /app/schema/backend.sql
       name: all
-      state: dump
+      state: import
+
+  - name: daemon reload
+    ansible.builtin.systemd_service:
+      daemon_reload: true
+      state: restarted
+      name: backend
